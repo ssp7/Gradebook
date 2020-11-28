@@ -6,36 +6,49 @@ namespace GradeBook
     {
         static void Main(string[] args)
         {
-            var book = new Book("Patel's gradebook");
+            var book = new InMemoryBook("Patel's gradebook");
+            book.GradeAdded += OnGradedAdded;
+            EnterGrades(book);
+            var stats = book.GetStatistics();
+        }
+
+        private static void EnterGrades(IBook book)
+        {
             System.Console.WriteLine("Please enter grades and enter q to quit");
             Boolean termination = false;
-            while(termination == false){
+            while (termination == false)
+            {
                 var grade = Console.ReadLine();
                 if (grade != "q")
                 {
                     try
                     {
                         book.AddGrade(Double.Parse(grade));
-                        book.printGrades();
                         Console.WriteLine("(enter q to quit)");
                     }
-                    catch(ArgumentException exception){
+                    catch (ArgumentException exception)
+                    {
                         Console.WriteLine(exception.Message);
                     }
-                    catch(FormatException exception){
+                    catch (FormatException exception)
+                    {
                         Console.WriteLine(exception.Message);
                     }
-                    finally{
+                    finally
+                    {
                         Console.WriteLine("*****");
                     }
                 }
-                else{
-                    termination = true;  
+                else
+                {
+                    termination = true;
                 }
 
             }
-            var stats = book.getStatistics();
-            book.printStatistics(stats);
         }
-    }
+
+        static void OnGradedAdded(object sender, EventArgs e){
+            Console.WriteLine("A grade was added");
+        }
+}
 }
