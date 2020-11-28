@@ -82,19 +82,19 @@ namespace GradeBook.Tests
             Assert.True(Object.ReferenceEquals(book1, book2));
         }
 
-        Book GetBook(string name){
-            return new Book(name);
+        InMemoryBook GetBook(string name){
+            return new InMemoryBook(name);
         }
 
-        private void SetName(Book book, string newname){
+        private void SetName(InMemoryBook book, string newname){
             book.Name = newname;
         }
-        private void GetBookSetName(Book book, string newname){
-            book = new Book(newname);
+        private void GetBookSetName(InMemoryBook book, string newname){
+            book = new InMemoryBook(newname);
             book.Name = newname;
         }
-        private void GetBookSetName(ref Book book, string newname){
-            book = new Book(newname);
+        private void GetBookSetName(ref InMemoryBook book, string newname){
+            book = new InMemoryBook(newname);
         }
         private int GetInt(){
             return 3;
