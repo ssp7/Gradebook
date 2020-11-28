@@ -6,10 +6,10 @@ namespace GradeBook
     {
         static void Main(string[] args)
         {
-            var book = new InMemoryBook("Patel's gradebook");
+            IBook book = new DiskBook("PatelGradebook");
             book.GradeAdded += OnGradedAdded;
             EnterGrades(book);
-            var stats = book.GetStatistics();
+            book.GetStatistics();
         }
 
         private static void EnterGrades(IBook book)

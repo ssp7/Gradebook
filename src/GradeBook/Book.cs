@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+
 namespace GradeBook
 {
         public delegate void GradeAddedDeligate(object sender, EventArgs args);
@@ -22,16 +24,14 @@ namespace GradeBook
     {
         protected Book(string name) : base(name)
         {
+
         }
 
-        public virtual event GradeAddedDeligate GradeAdded;
+        public abstract event GradeAddedDeligate GradeAdded;
 
         public abstract void AddGrade(double grade);
 
-        public virtual Statistics GetStatistics()
-        {
-            throw new NotImplementedException();
-        }
+        public abstract Statistics GetStatistics();
     }
      public interface IBook {
             void AddGrade(double grade);
@@ -39,13 +39,48 @@ namespace GradeBook
             string Name { get; }
             event GradeAddedDeligate GradeAdded;
         }
-      public class InMemoryBook : Book, IBook
+
+    public class DiskBook : Book
     {
-        public List<double> grades = new List<double>();
+        public DiskBook(string name) : base(name)
+        {
+        }
+
+        public override event GradeAddedDeligate GradeAdded;
+
+        public override void AddGrade(double grade)
+        {
+            using(var writer =  File.AppendText($"{Name}.txt"))
+            {
+                writer.WriteLine(grade);
+                if(GradeAdded != null){
+                    GradeAdded(this, new EventArgs());
+                }
+            }
+        }
+
+        public override Statistics GetStatistics()
+        {
+            var stats = new Statistics();
+            using(var reader = File.OpenText($"{Name}.txt")){
+              var line = reader.ReadLine();
+                while(line != null){
+                    var number = double.Parse(line);
+                    stats.Add(number);
+                    line = reader.ReadLine();
+                }
+            };
+            
+            return stats;
+        }
+    }
+    public class InMemoryBook : Book, IBook
+    {
+        public List<double> grades;
         public const string CATEGORY = "Science";
         public InMemoryBook(string name) : base(name)
         {
-            this.grades = new List<double>();
+            grades = new List<double>();
             Name = name;
         }
 
@@ -87,36 +122,11 @@ namespace GradeBook
         public override Statistics GetStatistics()
         {
             var stats = new Statistics();
-            stats.Average = 0.0;
-            stats.Highest = double.MinValue;
-            stats.Lowest = double.MaxValue;
-
             for (var index = 0; index < this.grades.Count; index++)
             {
-                stats.Highest = Math.Max(grades[index], stats.Highest);
-                stats.Lowest = Math.Min(grades[index], stats.Lowest);
-                stats.Average += grades[index];
+                stats.Add(grades[index]);
             }
-
-            stats.Average /= grades.Count;
-            switch (stats.Average)
-            {
-                case var d when d >= 90.0:
-                    stats.Letter = 'A';
-                    break;
-                case var d when d >= 80.0:
-                    stats.Letter = 'B';
-                    break;
-                case var d when d >= 70.0:
-                    stats.Letter = 'C';
-                    break;
-                case var d when d >= 60.0:
-                    stats.Letter = 'D';
-                    break;
-                default:
-                    stats.Letter = 'F';
-                    break;
-            }
+            
             Console.WriteLine($"{InMemoryBook.CATEGORY}");
             Console.WriteLine($"For the book with name {this.Name}");
             Console.WriteLine($"The Average grade is {stats.Average:N1}");
