@@ -1,2 +1,2 @@
 # Gradebook
-Simple CLI based C# &amp; .NET application
+Simple CLI based C# &amp; .NET Core application
